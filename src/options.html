@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Bindu Options</title>
+	<link rel="stylesheet" href="98.css">
+	<style>
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+			background: #f7f7f7;
+			color: #222;
+			margin: 0;
+			padding: 2em;
+		}
+
+		.status {
+			color: #007acc;
+			margin-top: 1em;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>Bindu Extension Settings</h1>
+	<form id="options-form">
+		<label for="api-select">Dictionary API:</label>
+		<select id="api-select">
+			<option value="dictionaryapi">DictionaryAPI (EN)</option>
+			<option disabled value="baidu">Baidu (CN)</option>
+		</select>
+		<label for="sound-select">Pronunciation Source:</label>
+		<select id="sound-select">
+			<option value="en_US">Merriam-Webster (US)</option>
+			<option disabled value="en_BG">Longman (UK)</option>
+		</select>
+		<button type="submit">Save</button>
+		<span class="status" id="status"></span>
+	</form>
+	<script src="options.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,7 @@
+.github/
+.vscode/
+.husky
+temp/
+log/
+test/
+eslint.config.js

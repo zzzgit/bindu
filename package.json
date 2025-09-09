@@ -1,0 +1,38 @@
+{
+  "name": "bindu",
+  "version": "1.5.0",
+  "description": "Practical and opinionated dictionary extension for Chrome",
+  "keywords": [
+    "chrome",
+    "dictionary",
+    "translation",
+    "browser-extension",
+    "chrome-extension"
+  ],
+  "license": "ISC",
+  "author": "zzznpm",
+  "type": "module",
+  "main": "src/background.js",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zzzgit/bindu.git"
+  },
+  "homepage": "https://github.com/zzzgit/bindu",
+  "bugs": {
+    "url": "https://github.com/zzzgit/bindu/issues"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "npm run clean && node ./scripts/zip.js",
+    "clean": "rm -rf dist bindu.zip",
+    "sync-version": "node scripts/sync-manifest-version.js"
+  },
+  "devDependencies": {
+    "eslint": "^9.35.0",
+    "eslint-config-janus": "^9.0.19",
+    "eslint-plugin-mocha": "^11.1.0"
+  }
+}
