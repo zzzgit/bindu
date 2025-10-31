@@ -28,7 +28,9 @@
   "scripts": {
     "build": "npm run clean && node ./scripts/zip.js",
     "clean": "rm -rf dist bindu.zip",
-    "sync-version": "node scripts/sync-manifest-version.js"
+    "version-bump": "npm version patch && npm run sync-version && npm run git-commit-version",
+    "sync-version": "node scripts/sync-manifest-version.js",
+    "git-commit-version": "git add ./manifest.json && git commit --amend"
   },
   "devDependencies": {
     "eslint": "^9.35.0",
