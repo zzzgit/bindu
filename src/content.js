@@ -89,7 +89,14 @@ const handleDocMouseup = (e)=> {
 	if (text){
 		showDefinitionWindow(text, e.clientX, e.clientY)
 		fetchAndDisplayDefinition(text)
-		fetchAndPlayVoice(text)
+		chrome.storage.sync.get(['autoPlay']).then((items)=> {
+			if (items.autoPlay){
+				fetchAndPlayVoice(text)
+			}
+			return true
+		}).catch((err)=> {
+			console.error('Error getting autoPlay setting:', err)
+		})
 	}
 }
 

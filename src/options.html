@@ -4,38 +4,111 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Bindu Options</title>
-	<link rel="stylesheet" href="98.css">
 	<style>
+		body,
+		h1,
+		div,
+		span,
+		label,
+		select,
+		button {
+			box-sizing: border-box;
+			padding: 0;
+			margin: 0;
+		}
+
 		body {
-			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
 			background: #f7f7f7;
 			color: #222;
 			margin: 0;
-			padding: 2em;
+		}
+
+		div.row {
+			margin-bottom: 15px;
+			display: flex;
+			align-items: center;
+			flex-wrap: nowrap;
+		}
+
+		.row>label:first-of-type {
+			width: 140px;
+			text-align: right;
+			flex-shrink: 0;
+			margin-right: 10px;
+		}
+
+		.row>select {
+			padding: 0 5px;
+			flex-grow: 1;
+		}
+
+		.title {
+			font-size: 18px;
+			margin: 10px 0;
+			text-align: center;
+
+		}
+
+		.fieldset {
+			border: 1px solid #ccc;
+			padding: 15px;
+			margin-bottom: 15px;
+			width: 80%;
+			margin-left: auto;
+			margin-right: auto;
+		}
+
+		.footer {
+			margin-bottom: 30px;
+			;
+			height: 40px;
+			text-align: center;
 		}
 
 		.status {
 			color: #007acc;
-			margin-top: 1em;
+			margin-bottom: 8px;
+			visibility: hidden;
+		}
+
+		button.save {
+			padding: 5px 15px;
+			font-size: 14px;
+			cursor: pointer;
+			width: 80px;
 		}
 	</style>
 </head>
 
 <body>
-	<h1>Bindu Extension Settings</h1>
+	<h1 class="title">Bindu Extension Settings</h1>
 	<form id="options-form">
-		<label for="api-select">Dictionary API:</label>
-		<select id="api-select">
-			<option value="dictionaryapi">DictionaryAPI (EN)</option>
-			<option disabled value="baidu">Baidu (CN)</option>
-		</select>
-		<label for="sound-select">Pronunciation Source:</label>
-		<select id="sound-select">
-			<option value="en_US">Merriam-Webster (US)</option>
-			<option disabled value="en_BG">Longman (UK)</option>
-		</select>
-		<button type="submit">Save</button>
-		<span class="status" id="status"></span>
+		<fieldset class="fieldset">
+			<legend class="legend">Settings</legend>
+			<div class="row">
+				<label for="api-select">Dictionary API:</label>
+				<select id="api-select">
+					<option value="dictionaryapi">DictionaryAPI (EN)</option>
+					<option disabled value="baidu">Baidu (CN)</option>
+				</select>
+			</div>
+			<div class="row">
+				<label for="sound-select">Pronunciation Source:</label>
+				<select id="sound-select">
+					<option value="en_US">Merriam-Webster (US)</option>
+					<option disabled value="en_BG">Longman (UK)</option>
+				</select>
+			</div>
+			<div class="row">
+				<label>Autoplay voice:</label>
+				<input type="radio" name="autoPlay" value="true" id="true"><label for="true">Enabled</label>
+				<input type="radio" name="autoPlay" value="false" id="false"><label for="false">Disabled</label>
+			</div>
+		</fieldset>
+		<footer class="footer">
+			<div class="status" id="status">Settings saved.</div>
+			<button class="save" type="submit">Save</button>
+		</footer>
 	</form>
 	<script src="options.js"></script>
 </body>

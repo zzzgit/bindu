@@ -1,24 +1,35 @@
-// Bindu Options Page
 const apiSelect = document.querySelector('#api-select')
 const soundSelect = document.querySelector('#sound-select')
 const statusSpan = document.querySelector('#status')
+const autoPlayTrue = document.querySelector('input[name="autoPlay"][value="true"]')
+const autoPlayFalse = document.querySelector('input[name="autoPlay"][value="false"]')
 
-// Load settings from chrome.storage
 function loadSettings(){
-	chrome.storage.sync.get(['api', 'sound'], (items)=> {
+	chrome.storage.sync.get(['api', 'sound', 'autoPlay']).then((items)=> {
 		if (items.api){ apiSelect.value = items.api }
 		if (items.sound){ soundSelect.value = items.sound }
+		if (items.autoPlay !== undefined){
+			autoPlayTrue.checked = items.autoPlay === true
+			autoPlayFalse.checked = items.autoPlay === false
+		}
+		return true
+	}).catch((err)=> {
+		console.error('Error loading settings:', err)
 	})
 }
 
-// Save settings to chrome.storage
 function saveSettings(e){
 	e.preventDefault()
 	const api = apiSelect.value
 	const sound = soundSelect.value
-	chrome.storage.sync.set({ api, sound }, ()=> {
-		statusSpan.textContent = 'Settings saved.'
-		setTimeout(()=> { statusSpan.textContent = '' }, 1200)
+	const autoPlay = autoPlayTrue.checked
+	chrome.storage.sync.set({
+		api, sound, autoPlay,
+	}).then(()=> {
+		statusSpan.style.visibility = 'visible'
+		return setTimeout(()=> { statusSpan.style.visibility = 'hidden' }, 1200)
+	}).catch((err)=> {
+		console.error('Error saving settings:', err)
 	})
 }
 
