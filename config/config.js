@@ -17,6 +17,10 @@ const config = {
 			name: 'AHD',
 		},
 		{
+			url: 'https://www.etymonline.com/word/%s',
+			name: 'Etymonline',
+		},
+		{
 			url: 'https://www.ldoceonline.com/dictionary/%s',
 			name: 'Longman',
 		},
