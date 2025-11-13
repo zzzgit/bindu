@@ -82,6 +82,11 @@ const fetchAndPlayVoice = (word)=> {
 		})
 }
 
+const checkLanguage = (word)=> {
+	return chrome.runtime.sendMessage({ type: 'BG_CHECK_LANGUAGE', payload: { word } }).then((response)=> {
+		return response.lang
+	})
+}
 const handleDocMouseup = (e)=> {
 	if (!e.altKey || !(e.metaKey || e.ctrlKey)){ return }
 	const selection = window.getSelection()
@@ -89,14 +94,20 @@ const handleDocMouseup = (e)=> {
 	if (text){
 		showDefinitionWindow(text, e.clientX, e.clientY)
 		fetchAndDisplayDefinition(text)
-		chrome.storage.sync.get(['autoPlay']).then((items)=> {
+		checkLanguage(text).then((lang)=> {
+			if(lang !== 'en'){
+				return { autoPlay: false }
+			}
+			return chrome.storage.sync.get(['autoPlay'])
+		}).then((items)=> {
 			if (items.autoPlay){
 				fetchAndPlayVoice(text)
 			}
 			return true
-		}).catch((err)=> {
-			console.error('Error getting autoPlay setting:', err)
 		})
+			.catch((err)=> {
+				console.error('Error getting autoPlay setting:', err)
+			})
 	}
 }
 

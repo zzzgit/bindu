@@ -67,6 +67,12 @@ const handleRuntimeMessage = (message, sender, sendResponse)=> {
 	if (message.type === 'LOG'){
 		console.log('LOG event:', message.payload)
 	}
+	if(message.type === 'BG_CHECK_LANGUAGE'){
+		const word = message.payload.word
+		const lang = checkLanguage(word)
+		sendResponse({ lang })
+		return true
+	}
 	if (message.type === 'FETCH_REQUEST'){
 		performFetch(message.url, message.options)
 			.then((data)=> {
