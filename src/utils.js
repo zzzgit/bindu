@@ -85,7 +85,23 @@ const performFetch = (url, options = {})=> {
 	})
 }
 
+const checkLanguage = (word)=> {
+	const hiraganaKatakanaRegex = /[\u3040-\u30FF]/
+	if (hiraganaKatakanaRegex.test(word)){
+		return 'ja'
+	}
+	const chineseRegex = /[\u4E00-\u9FFF]/
+	if (chineseRegex.test(word)){
+		return 'zh'
+	}
+	const latinRegex = /^[A-Za-z\s'-]+$/
+	if (latinRegex.test(word)){
+		return 'en'
+	}
+	return 'other'
+}
+
 export {
-	generateUUID, getCurrentTab, playSound, getSettings, saveSettings, fnv1aHash, performFetch,
+	generateUUID, getCurrentTab, playSound, getSettings, saveSettings, fnv1aHash, performFetch, checkLanguage,
 }
 
