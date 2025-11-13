@@ -32,7 +32,7 @@ const config = {
 	apis: {
 		youdao: 'https://dict.youdao.com/jsonapi',
 		iciba: 'https://www.iciba.com/index.php',
-		baidu: 'https://fanyi.baidu.com/sug',
+		freedictionaryapi: 'https://freedictionaryapi.com/api/v1/entries/%lang/%s',
 		dictionaryapi: 'https://api.dictionaryapi.dev/api/v2/entries/en/%s',
 	},
 	soundSource: {

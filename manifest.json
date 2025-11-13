@@ -16,7 +16,8 @@
     "host_permissions": [
         "https://www.merriam-webster.com/*",
         "https://media.merriam-webster.com/*",
-        "https://api.dictionaryapi.dev/*"
+        "https://api.dictionaryapi.dev/*",
+        "https://freedictionaryapi.com/*"
     ],
     "background": {
         "service_worker": "src/serviceWorker.js",
