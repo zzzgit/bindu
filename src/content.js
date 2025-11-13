@@ -196,8 +196,8 @@ const renderLoading = (text)=> {
 	return getEle(loading_tmpl({ text }))
 }
 
-const getApi = ()=> {
-	return chrome.runtime.sendMessage({ type: 'BG_GET_API' }).then((response)=> {
+const getApi = (word)=> {
+	return chrome.runtime.sendMessage({ type: 'BG_GET_API', payload: { word } }).then((response)=> {
 		return response.api
 	})
 }
@@ -221,9 +221,8 @@ const switchContent = (newContent)=> {
 const fetchAndDisplayDefinition = (word)=> {
 	const loadingContainer = renderLoading('Loading...')
 	switchContent(loadingContainer)
-	getApi().then((api)=> {
-		const url = api.replace('%s', encodeURIComponent(word))
-		return fetchIt(url)
+	getApi(word).then((api)=> {
+		return fetchIt(api)
 	})
 		.then((data)=> {
 			return switchContent(renderDictionary(data))

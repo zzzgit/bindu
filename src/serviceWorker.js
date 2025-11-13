@@ -1,5 +1,5 @@
 import config from '../config/config.js'
-import { fnv1aHash, getSettings, performFetch } from './utils.js'
+import { checkLanguage, fnv1aHash, getSettings, performFetch } from './utils.js'
 
 const BINDU_ID = 'bindu'
 const settings = {}
@@ -43,7 +43,15 @@ const handleRuntimeInstalled = ()=> {
 
 const handleRuntimeMessage = (message, sender, sendResponse)=> {
 	if (message.type === 'BG_GET_API'){
-		const api = config.apis[settings.api]
+		const word = message.payload.word
+		const lang = checkLanguage(word)
+		// eslint-disable-next-line no-useless-assignment
+		let api = null
+		if(lang === 'en'){
+			api = config.apis['dictionaryapi']
+		}else {
+			api = config.apis['freedictionaryapi'].replace('%lang', lang).replace('%s', encodeURIComponent(word))
+		}
 		sendResponse({ api })
 		return true
 	}
