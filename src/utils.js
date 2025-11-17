@@ -1,5 +1,36 @@
 import defaultSettings from '../config/defaultSettings.js'
 
+const canonLangs = {
+	JAPANESE: 'jpn',
+	ENGLISH: 'eng',
+	TAGALOG: 'tgl',
+	CHINESE: 'cho',
+	SPANISH: 'spa',
+}
+
+const free2canonLang = (lang)=> {
+	const free2canon_map = {
+		en: canonLangs.ENGLISH,
+		jp: canonLangs.JAPANESE,
+		ja: canonLangs.JAPANESE,
+		tl: canonLangs.TAGALOG,
+		zh: canonLangs.CHINESE,
+		es: canonLangs.SPANISH,
+	}
+	return free2canon_map[lang] || canonLangs.ENGLISH
+}
+
+const canon2freeLang = (lang)=> {
+	const canon2free_map = {
+		[canonLangs.ENGLISH]: 'en',
+		[canonLangs.JAPANESE]: 'ja',
+		[canonLangs.TAGALOG]: 'tl',
+		[canonLangs.CHINESE]: 'zh',
+		[canonLangs.SPANISH]: 'es',
+	}
+	return canon2free_map[lang] || 'en'
+}
+
 const generateUUID = ()=> {
 	const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 	let ssid = ''
@@ -88,20 +119,20 @@ const performFetch = (url, options = {})=> {
 const checkLanguage = (word)=> {
 	const hiraganaKatakanaRegex = /[\u3040-\u30FF]/
 	if (hiraganaKatakanaRegex.test(word)){
-		return 'ja'
+		return canonLangs.JAPANESE
 	}
 	const chineseRegex = /[\u4E00-\u9FFF]/
 	if (chineseRegex.test(word)){
-		return 'zh'
+		return canonLangs.CHINESE
 	}
 	const latinRegex = /^[A-Za-z\s'-]+$/
 	if (latinRegex.test(word)){
-		return 'en'
+		return canonLangs.ENGLISH
 	}
 	return 'other'
 }
 
 export {
-	generateUUID, getCurrentTab, playSound, getSettings, saveSettings, fnv1aHash, performFetch, checkLanguage,
+	generateUUID, getCurrentTab, playSound, getSettings, saveSettings, fnv1aHash, performFetch, checkLanguage, canonLangs, free2canonLang, canon2freeLang,
 }
 

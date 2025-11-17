@@ -31,6 +31,18 @@ const fetchIt = (url, options = {})=> {
 		return res.data
 	})
 }
+const fetchCanonData = (word, options = {})=> {
+	return chrome.runtime.sendMessage({
+		type: 'BG_FETCH_CANON',
+		payload: { word },
+		options,
+	}).then((res)=> {
+		if (!res.success){
+			throw new Error(res.error || 'Failed to fetch definition.')
+		}
+		return res.data
+	})
+}
 
 const playIt = (url)=> {
 	return chrome.runtime.sendMessage({
@@ -213,6 +225,8 @@ const getApi = (word)=> {
 	})
 }
 
+console.log(!!fetchIt && !!getApi ? '' : '')
+
 const getWebsterHtml = (word)=> {
 	return chrome.runtime.sendMessage({ type: 'BG_GET_WEBSTER_HTML', payload: { word } }).then((response)=> {
 		if(response?.error){
@@ -232,9 +246,7 @@ const switchContent = (newContent)=> {
 const fetchAndDisplayDefinition = (word)=> {
 	const loadingContainer = renderLoading('Loading...')
 	switchContent(loadingContainer)
-	getApi(word).then((api)=> {
-		return fetchIt(api)
-	})
+	fetchCanonData(word)
 		.then((data)=> {
 			return switchContent(renderDictionary(data))
 		})
@@ -299,29 +311,40 @@ const meaning_tmpl = (props)=> {
 <dl class="definition-list">
 	<dt class="definition-list__part">${props.partOfSpeech}</dt>
 	${props.definitions.map(def=> `
-		<dd class="definition-list__item">
-			${escapeHtml(def.definition)}
-			${def.example ? sentence_tmpl({ example: def.example }) : ''}
-		</dd>
+		return ${definition_tmpl({ def })}
 		`).join('')}
 </dl>
 	`
 	return str.trim()
 }
 
-const renderPhoneticsSection = (phonetics)=> {
+const definition_tmpl = (props)=> {
+	const { def } = props
+	const str = `
+<dd class="definition-list__item">
+	${escapeHtml(def.definition)}
+	${def.examples ? def.examples.map(example=> sentence_tmpl({ example })).join('') : ''}
+</dd>
+`
+	return str.trim()
+}
+
+const renderPhoneticsSection = (phonetics, lang)=> {
 	const container = getEle(phoneticsContainer_tmpl())
 	if (!phonetics?.length){
 		return container
 	}
 
 	phonetics.forEach((phonetic)=> {
-		if (!phonetic.audio){
+		if (!['cho', 'eng'].includes(lang)){
 			return null
 		}
 
 		const phoneticItem = getEle(phonetics_tmpl(phonetic))
 		const playAudio = ()=> {
+			if (!phonetic.audio){
+				return null
+			}
 			playIt(phonetic.audio).catch((err)=> {
 				console.error('Error playing audio:', err)
 			})
@@ -350,22 +373,22 @@ const renderMeaningsSection = (meanings)=> {
 	return fragment
 }
 
-const renderDictionary = (definitions)=> {
-	if (!Array.isArray(definitions)){
+const renderDictionary = (canonData)=> {
+	if (!canonData || !Array.isArray(canonData.etymologyEntries)){
 		throw new Error('No definition found.')
 	}
 
 	const container = document.createElement('div')
 	container.classList.add('definition-container')
 
-	definitions.forEach((def)=> {
+	canonData.etymologyEntries.forEach((etymologyEntry)=> {
 		const etymoCard = document.createElement('article')
 		etymoCard.classList.add('etymology-card')
 
-		const phoneticsFragment = renderPhoneticsSection(def.phonetics)
+		const phoneticsFragment = renderPhoneticsSection(etymologyEntry.phonetics, canonData.language)
 		etymoCard.appendChild(phoneticsFragment)
 
-		const meaningsFragment = renderMeaningsSection(def.meanings)
+		const meaningsFragment = renderMeaningsSection(etymologyEntry.meanings)
 		etymoCard.appendChild(meaningsFragment)
 
 		const separator = document.createElement('hr')

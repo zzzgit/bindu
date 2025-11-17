@@ -6,6 +6,7 @@ const constants = {
 	API: {
 		DICTIONARYAPI: 'dictionaryapi',
 		BAIDU: 'baidu',
+		FREEDICTIONARYAPI: 'freedictionaryapi',
 	},
 }
 

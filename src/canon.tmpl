@@ -1,0 +1,33 @@
+Search = {
+  word: string;
+  language: LangCode[];
+  etymologyEntries: EtymologyEntry[];
+  source?: string;
+}
+
+LangCode = string; // three letters: e.g. 'eng', 'jpn', 'fra', 'tgl'
+
+EtymologyEntry = {
+  phonetics?: Phonetics[];
+  etymology?: string;
+  meanings: Meaning[];
+}
+
+Definition = {
+  definition: string;
+  examples?: string[];
+  synonyms?: string[];
+  antonyms?: string[];
+}
+
+Meaning = {
+  partOfSpeech: string;
+  definitions: Definition[];
+}
+
+Phonetics = {
+  text: string;
+  audio?: string;
+	 type?: string; e.g. "IPA", "KK",
+  tags?: string[];
+}
