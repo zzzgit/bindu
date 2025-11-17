@@ -283,11 +283,27 @@ const phoneticsContainer_tmpl = ()=> {
 	return str.trim()
 }
 
-const phonetics_tmpl = (props)=> {
+const translateTag = (tags)=> {
+	const tagMap = {
+		Guangzhou: 'Canto.',
+		Taipei: 'Min.',
+		Xiamen: 'Min.',
+	}
+	for (const tag of tags){
+		if (tagMap[tag]){
+			return tagMap[tag]
+		}
+	}
+	return 'other'
+}
+
+const phonetics_tmpl = (props, lang)=> {
+	const tags = props.tags || []
 	const speaker = '<span class="etymology-phonetic__play" title="Play pronunciation">🔊</span>'
 	const str = `
 <p class="etymology-phonetic">
 	<span class="etymology-phonetic__text${props.audio ? ' has-audio' : ''}">
+		${lang === 'cho' ? `<span class="etymology-phonetic__tag">${translateTag(tags)}</span>` : ''}
 		${escapeHtml(props.text) || speaker}
 	</span>
 	
@@ -310,9 +326,7 @@ const meaning_tmpl = (props)=> {
 	const str = `
 <dl class="definition-list">
 	<dt class="definition-list__part">${props.partOfSpeech}</dt>
-	${props.definitions.map(def=> `
-		return ${definition_tmpl({ def })}
-		`).join('')}
+	${props.definitions.map(def=> definition_tmpl({ def })).join('')}
 </dl>
 	`
 	return str.trim()
@@ -345,7 +359,21 @@ const renderPhoneticsSection = (phonetics, lang)=> {
 	}
 	const langTag = getEle(lang_tmpl(lang))
 	container.appendChild(langTag)
-	phonetics.forEach((phonetic)=> {
+	const filteredPhonetics = phonetics.filter((phonetic)=> {
+		if(lang !== 'cho'){
+			return true
+		}
+		if(phonetic.tags){
+			const includeTags = ['Guangzhou', 'Taipei', 'Xiamen']
+			for (const includeTag of includeTags){
+				if (phonetic.tags.includes(includeTag)){
+					return true
+				}
+			}
+		}
+		return false
+	})
+	filteredPhonetics.forEach((phonetic)=> {
 		if (!['cho', 'eng'].includes(lang)){
 			return null
 		}
@@ -353,7 +381,7 @@ const renderPhoneticsSection = (phonetics, lang)=> {
 			return null
 		}
 
-		const phoneticItem = getEle(phonetics_tmpl(phonetic))
+		const phoneticItem = getEle(phonetics_tmpl(phonetic, lang))
 		const playAudio = ()=> {
 			if (!phonetic.audio){
 				return null
