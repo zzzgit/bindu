@@ -329,12 +329,22 @@ const definition_tmpl = (props)=> {
 	return str.trim()
 }
 
+const lang_tmpl = (lang)=> {
+	const str = `
+<p class="etymology-language">
+	<strong>${lang}</strong>
+</p>
+	`
+	return str.trim()
+}
+
 const renderPhoneticsSection = (phonetics, lang)=> {
 	const container = getEle(phoneticsContainer_tmpl())
 	if (!phonetics?.length){
 		return container
 	}
-
+	const langTag = getEle(lang_tmpl(lang))
+	container.appendChild(langTag)
 	phonetics.forEach((phonetic)=> {
 		if (!['cho', 'eng'].includes(lang)){
 			return null

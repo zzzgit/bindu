@@ -84,6 +84,16 @@
     align-items: center;
 }
 
+.etymology-language {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin: 0 4px;
+    user-select: none;
+    background: rgba(255, 255, 255, 0.1);
+    font-weight: 300;
+    padding: 0px 4px;
+}
+
 .etymology-phonetic {
     display: flex;
     align-items: center;
