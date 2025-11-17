@@ -93,11 +93,15 @@
 .etymology-phonetic__text {
     font-family: monospace;
     background: rgba(255, 255, 255, 0.05);
-    cursor: pointer;
     font-size: 12px;
+    user-select: none;
 }
 
-.etymology-phonetic__text:hover {
+.etymology-phonetic__text.has-audio {
+    cursor: pointer;
+}
+
+.etymology-phonetic__text.has-audio:hover {
     color: var(--hover-color);
 }
 

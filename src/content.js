@@ -287,7 +287,7 @@ const phonetics_tmpl = (props)=> {
 	const speaker = '<span class="etymology-phonetic__play" title="Play pronunciation">🔊</span>'
 	const str = `
 <p class="etymology-phonetic">
-	<span class="etymology-phonetic__text">
+	<span class="etymology-phonetic__text${props.audio ? ' has-audio' : ''}">
 		${escapeHtml(props.text) || speaker}
 	</span>
 	
@@ -337,6 +337,9 @@ const renderPhoneticsSection = (phonetics, lang)=> {
 
 	phonetics.forEach((phonetic)=> {
 		if (!['cho', 'eng'].includes(lang)){
+			return null
+		}
+		if(!phonetic.text && !phonetic.audio){
 			return null
 		}
 
