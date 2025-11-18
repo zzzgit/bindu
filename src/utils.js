@@ -99,7 +99,7 @@ const mergeConfigs = (config1, config2, options = {})=> {
 const performFetch = (url, options = {})=> {
 	return fetch(url, options).then((response)=> {
 		if (!response.ok){
-			throw new Error(`HTTP error! status: ${response.status}`)
+			throw new Error(`[bindu][performFetch]: HTTP error! status: ${response.status}`)
 		}
 		const contentType = response.headers.get('content-type')
 		if (contentType && contentType.includes('application/json')){

@@ -22,7 +22,7 @@ config.searchEngines.forEach((engine)=> {
 
 const dictionaryapiAdapter = (data)=> {
 	if (!Array.isArray(data)){
-		throw new Error('Input data must be an array')
+		throw new Error('[bindu][dictionaryapiAdapter]: Input data must be an array!')
 	}
 
 	const firstEntry = data[0]
@@ -52,7 +52,7 @@ const dictionaryapiAdapter = (data)=> {
 
 const freedictionaryapiAdapter = (data)=> {
 	if (!data || typeof data !== 'object'){
-		throw new Error('Input must be an object matching the Wiktionary-like schema')
+		throw new Error('[bindu][freedictionaryapiAdapter]: Input must be an object matching the Wiktionary-like schema!')
 	}
 
 	const word = data.word || ''
@@ -96,7 +96,7 @@ const freedictionaryapiAdapter = (data)=> {
 
 const wordsapiAdapter = (data)=> {
 	if (!data || typeof data !== 'object'){
-		throw new Error('Input must be an object')
+		throw new Error('[bindu][wordsapiAdapter]: Input must be an object!')
 	}
 
 	const word = data.word || ''
