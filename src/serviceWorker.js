@@ -11,7 +11,7 @@ getSettings().then((result)=> {
 	Object.assign(settings, result)
 	return settings
 }).catch((err)=> {
-	console.error('Failed to get settings:', err)
+	console.error('[bindu][getSettings]: Failed to get settings:', err)
 })
 
 config.searchEngines.forEach((engine)=> {
@@ -212,7 +212,7 @@ const handleRuntimeMessage = (message, sender, sendResponse)=> {
 		return true
 	}
 	if (message.type === 'LOG'){
-		console.log('LOG event:', message.payload)
+		console.log('[bindu][handleRuntimeMessage]: LOG event:', message.payload)
 	}
 	if(message.type === 'BG_CHECK_LANGUAGE'){
 		const word = message.payload.word
@@ -284,7 +284,7 @@ const handleActionClick = (tab)=> {
 	// eslint-disable-next-line promise/catch-or-return
 	chrome.tabs.sendMessage(tab.id, { type: 'getHighlightedText' }).then((response)=> {
 		if (!response?.text){
-			console.log('no text selected')
+			console.log('[bindu][handleActionClick]: no text selected')
 			return null
 		}
 		const engine = config.searchEngines.find(engine=> engine.name == 'gt')

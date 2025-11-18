@@ -3,7 +3,7 @@ let isMouseOverDefinitionWindow = false
 let autoHideTimer = null
 
 const handleRuntimeMessage = (msg, sender, sendResponse)=> {
-	console.log('Content script received message:', msg)
+	console.log('[bindu][handleRuntimeMessage]: Content script received message:', msg)
 	if (msg?.type === 'getHighlightedText'){
 		const selectedText = window.getSelection().toString()
 		sendResponse({ text: selectedText })
@@ -90,7 +90,7 @@ const fetchAndPlayVoice = (word)=> {
 			return playIt(url)
 		})
 		.catch((err)=> {
-			console.error('Error fetching voice:', err)
+			console.error('[bindu][fetchAndPlayVoice]: Error fetching voice:', err)
 		})
 }
 
@@ -118,7 +118,7 @@ const handleDocMouseup = (e)=> {
 			return true
 		})
 			.catch((err)=> {
-				console.error('Error getting autoPlay setting:', err)
+				console.error('[bindu][handleDocMouseup]: Error getting autoPlay setting:', err)
 			})
 	}
 }
@@ -251,7 +251,7 @@ const fetchAndDisplayDefinition = (word)=> {
 			return switchContent(renderDictionary(data))
 		})
 		.catch((err)=> {
-			console.error('Error fetching definition:', err)
+			console.error('[bindu][fetchAndDisplayDefinition]: Error fetching definition:', err)
 			const msg = err || 'Could not load definition. Please try again.'
 			switchContent(renderError(msg))
 		})
@@ -387,7 +387,7 @@ const renderPhoneticsSection = (phonetics, lang)=> {
 				return null
 			}
 			playIt(phonetic.audio).catch((err)=> {
-				console.error('Error playing audio:', err)
+				console.error('[bindu][playAudio]: Error playing audio:', err)
 			})
 		}
 		phoneticItem.addEventListener('click', playAudio)
