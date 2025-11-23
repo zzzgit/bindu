@@ -1,6 +1,295 @@
 let definitionWindow = null
-let isMouseOverDefinitionWindow = false
-let autoHideTimer = null
+
+class FloatingWindow{
+
+	constructor(){
+		this.root = document.createElement('div')
+		this.root.className = 'bindu-floating-window'
+		this.shadow = this.root.attachShadow({ mode: 'open' })
+		this.isMouseOver = false
+		this.autoHideTimer = null
+		this.fadeOutTimer = null
+		this.fadeInDuration = 0.5
+		this.fadeOutDuration = 1.5
+		this.maxOpacity = 0.9
+		this.delayAfterShow = 8
+		this.delayAfterMouseLeave = 2
+		this.windowWidth = 400
+		this.windowMinHeight = 100
+		this.windowMaxHeight = 200
+		this.offset = 10
+		this.render()
+		this._setupEventListeners()
+	}
+
+	_setupEventListeners(){
+		const container = this.shadow.querySelector('.bindu')
+		container.addEventListener('mouseenter', ()=> {
+			this.isMouseOver = true
+			clearTimeout(this.autoHideTimer)
+			clearTimeout(this.fadeOutTimer)
+		})
+		container.addEventListener('mouseleave', ()=> {
+			this.isMouseOver = false
+			this.scheduleAutoHide(this.delayAfterMouseLeave * 1000)
+		})
+	}
+
+	show(word, x, y){
+		this.root.setAttribute('aria-label', `Definition of ${word}`)
+		if (!this.root.isConnected){
+			document.body.appendChild(this.root)
+		}
+		this._positionWindow(x, y)
+		this.root.classList.add('is-visible')
+		this.scheduleAutoHide(this.delayAfterShow * 1000)
+	}
+
+	_positionWindow(x, y){
+		if (x + this.offset + this.windowWidth > window.innerWidth){
+			this.root.style.right = Math.max(window.innerWidth - x, this.offset) + 'px'
+		} else{
+			this.root.style.left = x + this.offset + 'px'
+		}
+		const windowHeight = this.root.offsetHeight
+		if (y + this.offset + windowHeight > window.innerHeight){
+			this.root.style.bottom = Math.max(window.innerHeight - y, this.offset) + 'px'
+		} else{
+			this.root.style.top = y + this.offset + 'px'
+		}
+	}
+
+	scheduleAutoHide(delay){
+		clearTimeout(this.autoHideTimer)
+		clearTimeout(this.fadeOutTimer)
+		this.autoHideTimer = setTimeout(()=> {
+			this.root.classList.add('is-removing')
+			this.root.classList.remove('is-visible')
+			this.fadeOutTimer = setTimeout(()=> {
+				this.close()
+			}, this.fadeOutDuration * 1000)
+		}, delay)
+	}
+
+	close(){
+		clearTimeout(this.autoHideTimer)
+		clearTimeout(this.fadeOutTimer)
+		const evt = new CustomEvent('closed', { bubbles: true, composed: true })
+		this.root.dispatchEvent(evt)
+		if (this.root.isConnected){
+			this.root.remove()
+		}
+	}
+
+	render(){
+		this.shadow.innerHTML = `
+			<style>
+				:root {
+					--text-secondary: #cccccc;
+					--accent-color: #007acc;
+					--hover-color: #4fc3f7;
+					--separator-color: rgba(255, 255, 255, 0.2);
+					--bullet-color: rgba(79, 195, 247, 0.7);
+					--example-color: #a0a0a0;
+				}
+				:host {
+					display: none;
+					box-sizing: border-box;
+					position: fixed;
+					width: ${this.windowWidth}px;
+					min-height: ${this.windowMinHeight}px;
+					max-height: ${this.windowMaxHeight}px;
+					overflow-y: auto;
+					opacity: 0;
+					border-radius: 8px;
+					transition: opacity ${this.fadeInDuration}s ease-in-out;
+					aria-modal: true;
+					z-index: 2147483647;
+				}
+				:host(.is-visible) {
+					display: block;
+					opacity: ${this.maxOpacity};
+				}
+				:host(.is-removing) {
+					transition-duration: ${this.fadeOutDuration}s;
+				}
+				*,
+				*::before,
+				*::after {
+					box-sizing: inherit;
+				}
+				.bindu {
+					width: 100%;
+					height: 100%;
+					background: rgba(30, 30, 30, 1);
+					padding: 2px 4px;
+					color: #ffffff;
+					border-radius: 8px;
+					box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+					overflow: auto;
+					border: 1px solid rgba(255, 255, 255, 0.1);
+					font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+					backdrop-filter: blur(4px);
+					scrollbar-width: 4px;
+				}
+				.bindu::-webkit-scrollbar { width: 4px; }
+				.bindu::-webkit-scrollbar-thumb { border-radius: 8px; }
+
+				.definition-window__loading,
+				.definition-window__error {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					height: 100px;
+					color: var(--text-secondary);
+					font-size: 16px;
+				}
+
+				.definition-window__container {
+					font-size: 14px;
+					line-height: 1.5;
+					display: flex;
+					flex-direction: column;
+					gap: 12px;
+				}
+
+				.etymology-card {
+					margin-bottom: 8px;
+					display: flex;
+					flex-direction: column;
+					gap: 6px;
+				}
+
+				.etymology-card__separator {
+					border: none;
+					border-top: 1px solid var(--separator-color);
+					margin: 0px;
+					width: 150px;
+					opacity: 0.7;
+				}
+
+				.phonetics-container {
+					display: flex;
+					flex-wrap: wrap;
+					gap: 12px;
+					margin-bottom: 8px;
+					align-items: center;
+				}
+
+				.etymology-language {
+					font-size: 11px;
+					color: var(--text-secondary);
+					margin: 0 4px;
+					user-select: none;
+					background: rgba(255, 255, 255, 0.1);
+					font-weight: 300;
+					padding: 0px 4px;
+				}
+
+				.etymology-phonetic {
+					display: flex;
+					align-items: center;
+					margin: 0;
+				}
+
+				.etymology-phonetic__text {
+					font-family: monospace;
+					background: rgba(255, 255, 255, 0.05);
+					font-size: 12px;
+					user-select: none;
+				}
+
+				.etymology-phonetic__text.has-audio {
+					cursor: pointer;
+				}
+
+				.etymology-phonetic__text.has-audio:hover {
+					color: var(--hover-color);
+				}
+
+				.etymology-phonetic__play {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					width: 16px;
+					height: 16px;
+					display: inline-block;
+					cursor: pointer;
+					opacity: 0.7;
+					transition: all 0.2s ease;
+				}
+
+				.etymology-phonetic__play:hover {
+					opacity: 1;
+					transform: scale(1.1);
+				}
+
+				.definition-list {
+					margin: 0;
+					padding: 0;
+					font-size: 14px;
+					line-height: 1.4;
+				}
+
+				.definition-list__part {
+					font-weight: 600;
+					font-size: 15px;
+					color: var(--accent-color);
+					margin-bottom: 4px;
+					text-transform: lowercase;
+					letter-spacing: 0.5px;
+				}
+
+				.definition-list__item {
+					margin: 0 0 4px 0;
+					padding-left: 10px;
+					position: relative;
+				}
+
+				.definition-list__item::before {
+					content: "•";
+					position: absolute;
+					left: 0;
+					color: var(--bullet-color);
+					/** more the 14 will cause layout shift **/
+					font-size: 14px;
+				}
+
+				.definition-sentence {
+					color: var(--example-color);
+					padding: 0 4px;
+					margin-top: 4px;
+					border-left: 1px solid rgba(255, 255, 255, 0.1);
+					font-size: 13px;
+				}
+
+				.definition-sentence__prefix {
+					opacity: 0.4;
+					user-select: none;
+					font-size: 10px;
+				}
+
+				.definition-sentence__text {
+					font-style: italic;
+				}
+			</style>
+			<div class="bindu" role="dialog"></div>
+		`
+		this.contentEl = this.shadow.querySelector('.bindu')
+	}
+
+	setContent(node){
+		if (!this.contentEl){ return }
+		this.contentEl.innerHTML = ''
+		if (typeof node === 'string'){
+			this.contentEl.innerHTML = node
+		} else if (node){
+			// 導致window.css 中的內容不生效
+			this.contentEl.appendChild(node)
+		}
+	}
+
+}
 
 const handleRuntimeMessage = (msg, sender, sendResponse)=> {
 	console.log('[bindu][handleRuntimeMessage]: Content script received message:', msg)
@@ -123,91 +412,12 @@ const handleDocMouseup = (e)=> {
 	}
 }
 
-const fadeOutAndRemove = (duration, callback)=> {
-	if (isMouseOverDefinitionWindow){
-		return null
-	}
-	definitionWindow.style.opacity = '0'
-	setTimeout(()=> {
-		if(callback){
-			callback()
-		}
-	}, duration * 1000)
-}
-
 const showDefinitionWindow = (word, x, y)=> {
-	const id = 'w' + new Date().valueOf()
-	const className = 'definition-window'
-	const windowWidth = 400
-	const windowMinHeight = 100
-	const windowMaxHeight = 200
-	const offset = 10
-	const fadeInDuration = 0.5
-	const fadeOutDuration = 1
-	const maxOpacity = 0.9
-	const delayAfterShow = 10 * 1000
-	const delayAfterMouseLeave = 2 * 1000
-	const existingWindow = document.querySelector(`.${className}`)
-
-	clearTimeout(autoHideTimer)
-	if (existingWindow){
-		fadeOutAndRemove(fadeOutDuration, ()=> existingWindow.remove())
+	if (definitionWindow){
+		definitionWindow.scheduleAutoHide(0)
 	}
-
-	definitionWindow = document.createElement('div')
-	definitionWindow.id = id
-	definitionWindow.className = className
-	definitionWindow.role = 'dialog'
-	definitionWindow.ariaLabel = `Definition of ${word}`
-
-	definitionWindow.style.width = `${windowWidth}px`
-	definitionWindow.style.minHeight = `${windowMinHeight}px`
-	definitionWindow.style.maxHeight = `${windowMaxHeight}px`
-	definitionWindow.style.opacity = '0'
-	definitionWindow.style.transition = `opacity ${fadeInDuration}s ease-in-out`
-
-	if (x + offset + windowWidth > window.innerWidth){
-		definitionWindow.style.right = Math.max(window.innerWidth - x, offset) + 'px'
-	} else{
-		definitionWindow.style.left = x + offset + 'px'
-	}
-	document.body.appendChild(definitionWindow)
-
-	// after appendence
-	const windowHeight = definitionWindow.offsetHeight
-	if (y + offset + windowHeight > window.innerHeight){
-		definitionWindow.style.bottom = Math.max(window.innerHeight - y, offset) + 'px'
-	} else{
-		definitionWindow.style.top = y + offset + 'px'
-	}
-
-	definitionWindow.addEventListener('mouseenter', ()=> {
-		isMouseOverDefinitionWindow = true
-		clearTimeout(autoHideTimer)
-	})
-
-	definitionWindow.addEventListener('mouseleave', ()=> {
-		isMouseOverDefinitionWindow = false
-		definitionWindow.style.transition = `opacity ${fadeOutDuration}s ease-in-out`
-		// clearTimeout(autoHideTimer)
-		autoHideTimer = setTimeout(()=> {
-			definitionWindow.style.transition = `opacity ${fadeOutDuration}s ease-in-out`
-			fadeOutAndRemove(fadeOutDuration, ()=> {
-				definitionWindow.remove()
-			})
-		}, delayAfterMouseLeave)
-	})
-
-	requestAnimationFrame(()=> {
-		definitionWindow.style.opacity = maxOpacity
-	})
-
-	autoHideTimer = setTimeout(()=> {
-		definitionWindow.style.transition = `opacity ${fadeOutDuration}s ease-in-out`
-		fadeOutAndRemove(fadeOutDuration, ()=> {
-			definitionWindow.remove()
-		})
-	}, delayAfterShow)
+	definitionWindow = new FloatingWindow()
+	definitionWindow.show(word, x, y)
 }
 
 const renderError = (message)=> {
@@ -237,10 +447,8 @@ const getWebsterHtml = (word)=> {
 }
 
 const switchContent = (newContent)=> {
-	if(definitionWindow.firstChild){
-		definitionWindow.removeChild(definitionWindow.firstChild)
-	}
-	definitionWindow.appendChild(newContent)
+	if (!definitionWindow){ return }
+	definitionWindow.setContent(newContent)
 }
 
 const fetchAndDisplayDefinition = (word)=> {
@@ -259,7 +467,7 @@ const fetchAndDisplayDefinition = (word)=> {
 
 const error_tmpl = (props)=> {
 	const str = `
-<div class="definition-window__error">
+<div class="bindu__error">
 	<p>${escapeHtml(props.message)}</p>
 </div>
 	`
@@ -268,7 +476,7 @@ const error_tmpl = (props)=> {
 
 const loading_tmpl = (props)=> {
 	const str = `
-<div class="definition-window__loading">
+<div class="bindu__loading">
 	<p>${escapeHtml(props.text || 'Loading...')}</p>
 </div>
 	`
