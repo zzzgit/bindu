@@ -92,6 +92,11 @@ class FloatingWindow{
 					--bullet-color: rgba(79, 195, 247, 0.7);
 					--example-color: #a0a0a0;
 				}
+				*,
+				*::before,
+				*::after {
+					box-sizing: inherit;
+				}
 				:host {
 					display: none;
 					box-sizing: border-box;
@@ -113,10 +118,8 @@ class FloatingWindow{
 				:host(.is-removing) {
 					transition-duration: ${this.fadeOutDuration}s;
 				}
-				*,
-				*::before,
-				*::after {
-					box-sizing: inherit;
+				:host::-webkit-scrollbar { 
+					width: 4px; 
 				}
 				.bindu {
 					width: 100%;
@@ -132,8 +135,6 @@ class FloatingWindow{
 					backdrop-filter: blur(4px);
 					scrollbar-width: 4px;
 				}
-				.bindu::-webkit-scrollbar { width: 4px; }
-				.bindu::-webkit-scrollbar-thumb { border-radius: 8px; }
 
 				.definition-window__loading,
 				.definition-window__error {
