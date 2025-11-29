@@ -1,5 +1,16 @@
 let definitionWindow = null
 
+const detectOS = ()=> {
+	const userAgent = navigator.userAgent
+	if (userAgent.includes('Win')){
+		return 'os-windows'
+	} else if (userAgent.includes('Mac')){
+		return 'os-mac'
+	} else if (userAgent.includes('Linux')){
+		return 'os-linux'
+	}
+}
+
 class FloatingWindow{
 
 	constructor(){
@@ -118,8 +129,23 @@ class FloatingWindow{
 				:host(.is-removing) {
 					transition-duration: ${this.fadeOutDuration}s;
 				}
-				:host::-webkit-scrollbar { 
-					width: 4px; 
+				:host(:not(.os-mac))::-webkit-scrollbar {
+					width: 0; 
+				}
+				:host(:not(.os-mac)):hover::-webkit-scrollbar {
+					width: 4px;   
+				}
+				:host(:not(.os-mac))::-webkit-scrollbar-track {
+					background-color: transparent;
+				}
+				:host(:not(.os-mac))::-webkit-scrollbar-thumb {
+					border-radius: 4px;
+				}
+				:host(:not(.os-mac)):hover::-webkit-scrollbar-thumb {
+					background: rgba(0, 0, 0, 0.3);     
+				}
+				:host(:not(.os-mac)):hover::-webkit-scrollbar-thumb:hover {
+					background: rgba(0, 0, 0, 0.5);
 				}
 				.bindu {
 					width: 100%;
@@ -277,6 +303,7 @@ class FloatingWindow{
 			<div class="bindu" role="dialog"></div>
 		`
 		this.contentEl = this.shadowRoot.querySelector('.bindu')
+		this.host.classList.add(detectOS())
 	}
 
 	setContent(node){
