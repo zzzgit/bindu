@@ -3,9 +3,9 @@ let definitionWindow = null
 class FloatingWindow{
 
 	constructor(){
-		this.root = document.createElement('div')
-		this.root.className = 'bindu-floating-window'
-		this.shadow = this.root.attachShadow({ mode: 'open' })
+		this.host = document.createElement('div')
+		this.host.className = 'bindu-floating-window'
+		this.shadowRoot = this.host.attachShadow({ mode: 'open' })
 		this.isMouseOver = false
 		this.autoHideTimer = null
 		this.fadeOutTimer = null
@@ -23,7 +23,7 @@ class FloatingWindow{
 	}
 
 	_setupEventListeners(){
-		const container = this.shadow.querySelector('.bindu')
+		const container = this.shadowRoot.querySelector('.bindu')
 		container.addEventListener('mouseenter', ()=> {
 			this.isMouseOver = true
 			clearTimeout(this.autoHideTimer)
@@ -36,26 +36,26 @@ class FloatingWindow{
 	}
 
 	show(word, x, y){
-		this.root.setAttribute('aria-label', `Definition of ${word}`)
-		if (!this.root.isConnected){
-			document.body.appendChild(this.root)
+		this.host.setAttribute('aria-label', `Definition of ${word}`)
+		if (!this.host.isConnected){
+			document.body.appendChild(this.host)
 		}
 		this._positionWindow(x, y)
-		this.root.classList.add('is-visible')
+		this.host.classList.add('is-visible')
 		this.scheduleAutoHide(this.delayAfterShow * 1000)
 	}
 
 	_positionWindow(x, y){
 		if (x + this.offset + this.windowWidth > window.innerWidth){
-			this.root.style.right = Math.max(window.innerWidth - x, this.offset) + 'px'
+			this.host.style.right = Math.max(window.innerWidth - x, this.offset) + 'px'
 		} else{
-			this.root.style.left = x + this.offset + 'px'
+			this.host.style.left = x + this.offset + 'px'
 		}
-		const windowHeight = this.root.offsetHeight
+		const windowHeight = this.host.offsetHeight
 		if (y + this.offset + windowHeight > window.innerHeight){
-			this.root.style.bottom = Math.max(window.innerHeight - y, this.offset) + 'px'
+			this.host.style.bottom = Math.max(window.innerHeight - y, this.offset) + 'px'
 		} else{
-			this.root.style.top = y + this.offset + 'px'
+			this.host.style.top = y + this.offset + 'px'
 		}
 	}
 
@@ -63,8 +63,8 @@ class FloatingWindow{
 		clearTimeout(this.autoHideTimer)
 		clearTimeout(this.fadeOutTimer)
 		this.autoHideTimer = setTimeout(()=> {
-			this.root.classList.add('is-removing')
-			this.root.classList.remove('is-visible')
+			this.host.classList.add('is-removing')
+			this.host.classList.remove('is-visible')
 			this.fadeOutTimer = setTimeout(()=> {
 				this.close()
 			}, this.fadeOutDuration * 1000)
@@ -75,14 +75,14 @@ class FloatingWindow{
 		clearTimeout(this.autoHideTimer)
 		clearTimeout(this.fadeOutTimer)
 		const evt = new CustomEvent('closed', { bubbles: true, composed: true })
-		this.root.dispatchEvent(evt)
-		if (this.root.isConnected){
-			this.root.remove()
+		this.host.dispatchEvent(evt)
+		if (this.host.isConnected){
+			this.host.remove()
 		}
 	}
 
 	render(){
-		this.shadow.innerHTML = `
+		this.shadowRoot.innerHTML = `
 			<style>
 				:root {
 					--text-secondary: #cccccc;
@@ -276,7 +276,7 @@ class FloatingWindow{
 			</style>
 			<div class="bindu" role="dialog"></div>
 		`
-		this.contentEl = this.shadow.querySelector('.bindu')
+		this.contentEl = this.shadowRoot.querySelector('.bindu')
 	}
 
 	setContent(node){
