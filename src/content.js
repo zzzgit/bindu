@@ -15,7 +15,7 @@ class FloatingWindow{
 
 	constructor(){
 		this.host = document.createElement('div')
-		this.host.className = 'bindu-floating-window'
+		this.host.className = 'bindu-window'
 		this.shadowRoot = this.host.attachShadow({ mode: 'open' })
 		this.isMouseOver = false
 		this.autoHideTimer = null
