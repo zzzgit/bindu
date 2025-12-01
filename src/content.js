@@ -132,21 +132,6 @@ class FloatingWindow{
 				:host(:not(.os-mac))::-webkit-scrollbar {
 					width: 0; 
 				}
-				:host(:not(.os-mac)):hover::-webkit-scrollbar {
-					width: 4px;   
-				}
-				:host(:not(.os-mac))::-webkit-scrollbar-track {
-					background-color: transparent;
-				}
-				:host(:not(.os-mac))::-webkit-scrollbar-thumb {
-					border-radius: 4px;
-				}
-				:host(:not(.os-mac)):hover::-webkit-scrollbar-thumb {
-					background: rgba(0, 0, 0, 0.3);     
-				}
-				:host(:not(.os-mac)):hover::-webkit-scrollbar-thumb:hover {
-					background: rgba(0, 0, 0, 0.5);
-				}
 				.bindu {
 					width: 100%;
 					height: 100%;
