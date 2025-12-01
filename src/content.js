@@ -109,7 +109,7 @@ class FloatingWindow{
 					box-sizing: inherit;
 				}
 				:host {
-					display: none;
+					display: block;
 					box-sizing: border-box;
 					position: fixed;
 					width: ${this.windowWidth}px;
@@ -123,7 +123,6 @@ class FloatingWindow{
 					z-index: 2147483647;
 				}
 				:host(.is-visible) {
-					display: block;
 					opacity: ${this.maxOpacity};
 				}
 				:host(.is-removing) {
