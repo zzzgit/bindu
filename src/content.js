@@ -307,14 +307,15 @@ class FloatingWindow{
 	}
 
 	setContent(node){
-		if (!this.contentEl){ return }
+		if (!this.contentEl){
+			return null
+		}
 		this.contentEl.innerHTML = ''
 		if (typeof node === 'string'){
 			this.contentEl.innerHTML = node
-		} else if (node){
-			// 導致window.css 中的內容不生效
-			this.contentEl.appendChild(node)
+			return null
 		}
+		this.contentEl.appendChild(node)
 	}
 
 }
@@ -685,7 +686,7 @@ const getEle = (tmpl)=> {
 }
 
 const registerMessageListener = ()=> {
-	// no promise-based API 
+	// according to the official documentation, there's no promise-based API
 	chrome.runtime.onMessage.removeListener(handleRuntimeMessage)
 	chrome.runtime.onMessage.addListener(handleRuntimeMessage)
 }
