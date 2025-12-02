@@ -94,15 +94,10 @@ class FloatingWindow{
 	}
 
 	render(){
+		// variables in :root doesn't work at all 
 		this.shadowRoot.innerHTML = `
 			<style>
 				:root {
-					--text-secondary: #cccccc;
-					--accent-color: #007acc;
-					--hover-color: #4fc3f7;
-					--separator-color: rgba(255, 255, 255, 0.2);
-					--bullet-color: rgba(79, 195, 247, 0.7);
-					--example-color: #a0a0a0;
 				}
 				*,
 				*::before,
