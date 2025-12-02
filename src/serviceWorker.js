@@ -170,8 +170,10 @@ const handleRuntimeInstalled = ()=> {
 
 const handleRuntimeMessage = (message, sender, sendResponse)=> {
 	const word = message.payload?.word
-	const lang = checkLanguage(word)
-	const calculateURL = ()=> {
+	const desiredLang = message.options?.desiredLang
+	const detectedLang = checkLanguage(word)
+	const lang = desiredLang || detectedLang
+	const calculateURL = (lang)=> {
 		let template = config.apis['dictionaryapi']
 		if(lang !== canonLangs.ENGLISH){
 			template = config.apis['freedictionaryapi']
@@ -180,16 +182,16 @@ const handleRuntimeMessage = (message, sender, sendResponse)=> {
 		return url
 	}
 	if (message.type === 'BG_GET_API'){
-		const api = calculateURL()
+		const api = calculateURL(lang)
 		sendResponse({ api })
 		return true
 	}
 	if(message.type === 'BG_FETCH_CANON'){
-		const api = calculateURL()
+		const api = calculateURL(lang)
 		performFetch(api).then((rawData)=> {
 			// eslint-disable-next-line no-useless-assignment
 			let data = null
-			if(lang === canonLangs.ENGLISH){
+			if(detectedLang === canonLangs.ENGLISH){
 				data = dictionaryapiAdapter(rawData)
 			} else {
 				data = freedictionaryapiAdapter(rawData)

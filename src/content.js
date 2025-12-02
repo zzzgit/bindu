@@ -48,6 +48,7 @@ class FloatingWindow{
 
 	show(word, x, y){
 		this.host.setAttribute('aria-label', `Definition of ${word}`)
+		this.host.dataset.word = word
 		if (!this.host.isConnected){
 			document.body.appendChild(this.host)
 		}
@@ -464,10 +465,10 @@ const switchContent = (newContent)=> {
 	definitionWindow.setContent(newContent)
 }
 
-const fetchAndDisplayDefinition = (word)=> {
+const fetchAndDisplayDefinition = (word, desiredLang)=> {
 	const loadingContainer = renderLoading('Loading...')
 	switchContent(loadingContainer)
-	fetchCanonData(word)
+	fetchCanonData(word, { desiredLang })
 		.then((data)=> {
 			return switchContent(renderDictionary(data))
 		})
@@ -567,10 +568,16 @@ const definition_tmpl = (props)=> {
 const lang_tmpl = (lang)=> {
 	const str = `
 <p class="etymology-language">
-	<strong>${lang}</strong>
+	<strong lang="${lang}">${lang}</strong>
 </p>
 	`
 	return str.trim()
+}
+
+const switchLang = (desiredLang)=> {
+	if (!definitionWindow){ return }
+	const word = definitionWindow.host.dataset.word || ''
+	fetchAndDisplayDefinition(word, desiredLang)
 }
 
 const renderPhoneticsSection = (phonetics, lang)=> {
@@ -579,6 +586,18 @@ const renderPhoneticsSection = (phonetics, lang)=> {
 		return container
 	}
 	const langTag = getEle(lang_tmpl(lang))
+	const handleLangClick = (e)=> {
+		e.stopPropagation()
+		e.preventDefault()
+		const ele = e.target
+		const currentLang = ele.getAttribute('lang')
+		const workingLangs = ['cho', 'jpn']
+		if(!workingLangs.includes(currentLang)){
+			return null
+		}
+		switchLang(currentLang === 'cho' ? 'jpn' : 'cho')
+	}
+	langTag.addEventListener('click', handleLangClick)
 	container.appendChild(langTag)
 	const filteredPhonetics = phonetics.filter((phonetic)=> {
 		if(lang !== 'cho'){
