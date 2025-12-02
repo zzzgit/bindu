@@ -147,17 +147,17 @@ class FloatingWindow{
 					scrollbar-width: 4px;
 				}
 
-				.definition-window__loading,
-				.definition-window__error {
+				.bindu__loading,
+				.bindu__error {
 					display: flex;
 					justify-content: center;
 					align-items: center;
 					height: 100px;
-					color: var(--text-secondary);
+					color: #cccccc;
 					font-size: 16px;
 				}
 
-				.definition-window__container {
+				.definition-container {
 					font-size: 14px;
 					line-height: 1.5;
 					display: flex;
@@ -166,31 +166,28 @@ class FloatingWindow{
 				}
 
 				.etymology-card {
-					margin-bottom: 8px;
 					display: flex;
 					flex-direction: column;
 					gap: 6px;
 				}
 
 				.etymology-card__separator {
-					border: none;
-					border-top: 1px solid var(--separator-color);
 					margin: 0px;
 					width: 150px;
-					opacity: 0.7;
+					border: none;
+					border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 				}
 
 				.phonetics-container {
 					display: flex;
 					flex-wrap: wrap;
 					gap: 12px;
-					margin-bottom: 8px;
 					align-items: center;
 				}
 
 				.etymology-language {
 					font-size: 11px;
-					color: var(--text-secondary);
+					color: #cccccc;
 					margin: 0 4px;
 					user-select: none;
 					background: rgba(255, 255, 255, 0.1);
@@ -216,7 +213,7 @@ class FloatingWindow{
 				}
 
 				.etymology-phonetic__text.has-audio:hover {
-					color: var(--hover-color);
+					color: #4fc3f7;
 				}
 
 				.etymology-phonetic__play {
@@ -245,8 +242,8 @@ class FloatingWindow{
 
 				.definition-list__part {
 					font-weight: 600;
-					font-size: 15px;
-					color: var(--accent-color);
+					font-size: 14px;
+					color: #80C2A0;
 					margin-bottom: 4px;
 					text-transform: lowercase;
 					letter-spacing: 0.5px;
@@ -262,13 +259,13 @@ class FloatingWindow{
 					content: "•";
 					position: absolute;
 					left: 0;
-					color: var(--bullet-color);
+					color: #E0E0E0;
 					/** more the 14 will cause layout shift **/
 					font-size: 14px;
 				}
 
 				.definition-sentence {
-					color: var(--example-color);
+					color: #a0a0a0;
 					padding: 0 4px;
 					margin-top: 4px;
 					border-left: 1px solid rgba(255, 255, 255, 0.1);
