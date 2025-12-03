@@ -11,6 +11,28 @@ const detectOS = ()=> {
 	}
 }
 
+const html = (strings, ...values)=> {
+	const normalized = values.map((v)=> {
+		if (Array.isArray(v)){
+			return v.map(item=> item).join('')
+		}
+		return v
+	})
+
+	const output = strings.reduce((acc, str, i)=> acc + str + (normalized[i] ?? ''), '')
+
+	return output.replace(/<template if=([^>]+)>([\s\S]*?)<\/template>/g, (_, cond, content)=> {
+		const isTrue = (()=> {
+			try {
+				return !!eval(cond)
+			} catch {
+				return false
+			}
+		})()
+		return isTrue ? content : ''
+	})
+}
+
 class FloatingWindow{
 
 	constructor(){
@@ -471,32 +493,6 @@ const fetchAndDisplayDefinition = (word, desiredLang)=> {
 		})
 }
 
-const error_tmpl = (props)=> {
-	const str = `
-<div class="bindu__error">
-	<p>${escapeHtml(props.message)}</p>
-</div>
-	`
-	return str.trim()
-}
-
-const loading_tmpl = (props)=> {
-	const str = `
-<div class="bindu__loading">
-	<p>${escapeHtml(props.text || 'Loading...')}</p>
-</div>
-	`
-	return str.trim()
-}
-
-const phoneticsContainer_tmpl = ()=> {
-	const str = `
-<div class="phonetics-container">
-</div>
-	`
-	return str.trim()
-}
-
 const translateTag = (tags)=> {
 	const tagMap = {
 		Guangzhou: 'Canto.',
@@ -511,13 +507,41 @@ const translateTag = (tags)=> {
 	return 'other'
 }
 
+const error_tmpl = (props)=> {
+	const str = html`
+<div class="bindu__error">
+	<p>${escapeHtml(props.message)}</p>
+</div>
+	`
+	return str.trim()
+}
+
+const loading_tmpl = (props)=> {
+	const str = html`
+<div class="bindu__loading">
+	<p>${escapeHtml(props.text || 'Loading...')}</p>
+</div>
+	`
+	return str.trim()
+}
+
+const phoneticsContainer_tmpl = ()=> {
+	const str = html`
+<div class="phonetics-container">
+</div>
+	`
+	return str.trim()
+}
+
 const phonetics_tmpl = (props, lang)=> {
 	const tags = props.tags || []
 	const speaker = '<span class="etymology-phonetic__play" title="Play pronunciation">🔊</span>'
-	const str = `
+	const str = html`
 <p class="etymology-phonetic">
 	<span class="etymology-phonetic__text${props.audio ? ' has-audio' : ''}">
-		${lang === 'cho' ? `<span class="etymology-phonetic__tag">${translateTag(tags)}</span>` : ''}
+		<template if=${lang === 'cho'}>
+			<span class="etymology-phonetic__tag">${translateTag(tags)}</span>
+		</template>
 		${escapeHtml(props.text) || speaker}
 	</span>
 	
@@ -527,7 +551,7 @@ const phonetics_tmpl = (props, lang)=> {
 }
 
 const sentence_tmpl = (props)=> {
-	const str = `
+	const str = html`
 <div class="definition-sentence">
 	<span class="definition-sentence__prefix">e.g. </span>
 	<span class="definition-sentence__text">${escapeHtml(props.example)}</span>
@@ -537,10 +561,10 @@ const sentence_tmpl = (props)=> {
 }
 
 const meaning_tmpl = (props)=> {
-	const str = `
+	const str = html`
 <dl class="definition-list">
 	<dt class="definition-list__part">${props.partOfSpeech}</dt>
-	${props.definitions.map(def=> definition_tmpl({ def })).join('')}
+	${props.definitions.map(def=> definition_tmpl({ def }))}
 </dl>
 	`
 	return str.trim()
@@ -548,17 +572,19 @@ const meaning_tmpl = (props)=> {
 
 const definition_tmpl = (props)=> {
 	const { def } = props
-	const str = `
+	const str = html`
 <dd class="definition-list__item">
 	${escapeHtml(def.definition)}
-	${def.examples ? def.examples.map(example=> sentence_tmpl({ example })).join('') : ''}
+	<template if=${def.examples}>
+		${def.examples.map(example=> sentence_tmpl({ example }))}
+	</template>
 </dd>
 `
 	return str.trim()
 }
 
 const lang_tmpl = (lang)=> {
-	const str = `
+	const str = html`
 <p class="etymology-language">
 	<strong lang="${lang}">${lang}</strong>
 </p>
