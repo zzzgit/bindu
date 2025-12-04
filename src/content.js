@@ -59,8 +59,7 @@ class FloatingWindow{
 		const container = this.shadowRoot.querySelector('.bindu')
 		container.addEventListener('mouseenter', ()=> {
 			this.isMouseOver = true
-			clearTimeout(this.autoHideTimer)
-			clearTimeout(this.fadeOutTimer)
+			this._cancelAutoHideSchedule()
 		})
 		container.addEventListener('mouseleave', ()=> {
 			this.isMouseOver = false
@@ -103,6 +102,13 @@ class FloatingWindow{
 				this.close()
 			}, this.fadeOutDuration * 1000)
 		}, delay)
+	}
+
+	_cancelAutoHideSchedule(){
+		clearTimeout(this.autoHideTimer)
+		clearTimeout(this.fadeOutTimer)
+		this.host.classList.add('is-visible')
+		this.host.classList.remove('is-removing')
 	}
 
 	close(){
