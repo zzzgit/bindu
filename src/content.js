@@ -42,7 +42,7 @@ class FloatingWindow{
 		this.isMouseOver = false
 		this.autoHideTimer = null
 		this.fadeOutTimer = null
-		this.fadeInDuration = 0.7
+		this.fadeInDuration = 1
 		this.fadeOutDuration = 1.5
 		this.maxOpacity = 0.9
 		this.delayAfterShow = 8
