@@ -24,7 +24,7 @@ const html = (strings, ...values)=> {
 	return output.replace(/<template if=([^>]+)>([\s\S]*?)<\/template>/g, (_, cond, content)=> {
 		const isTrue = (()=> {
 			try {
-				return !!eval(cond)
+				return cond === 'true' ? content : ''
 			} catch {
 				return false
 			}
