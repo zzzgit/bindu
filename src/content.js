@@ -210,10 +210,11 @@ class FloatingWindow{
 
 				.etymology-language {
 					font-size: 11px;
-					color: #cccccc;
+					background: rgba(0, 0, 0, 0.3);
+					color: #E0E0E0;
+					border: 1px solid rgba(255, 255, 255, 0.15);
 					margin: 0 4px;
 					user-select: none;
-					background: rgba(255, 255, 255, 0.1);
 					font-weight: 300;
 					padding: 0px 4px;
 				}
@@ -229,6 +230,11 @@ class FloatingWindow{
 					background: rgba(255, 255, 255, 0.05);
 					font-size: 12px;
 					user-select: none;
+				}
+
+				.etymology-phonetic__tag {
+					color: #FFAB40;
+					font-size: 9px;
 				}
 
 				.etymology-phonetic__text.has-audio {
