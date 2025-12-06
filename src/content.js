@@ -84,7 +84,7 @@ class FloatingWindow{
 		} else{
 			this.host.style.left = x + this.offset + 'px'
 		}
-		const windowHeight = this.host.offsetHeight
+		const windowHeight = this.windowMaxHeight
 		if (y + this.offset + windowHeight > window.innerHeight){
 			this.host.style.bottom = Math.max(window.innerHeight - y, this.offset) + 'px'
 		} else{
