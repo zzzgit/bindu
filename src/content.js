@@ -143,7 +143,6 @@ class FloatingWindow{
 					opacity: 0;
 					border-radius: 8px;
 					transition: opacity ${this.fadeInDuration}s ease-in-out;
-					aria-modal: true;
 					z-index: 2147483647;
 					background: rgba(0, 0, 0, 0.9);
 					backdrop-filter: blur(10px) saturate(100%);
@@ -315,6 +314,7 @@ class FloatingWindow{
 		`
 		this.contentEl = this.shadowRoot.querySelector('.bindu')
 		this.host.classList.add(detectOS())
+		this.host.setAttribute('aria-modal', 'true')
 	}
 
 	setContent(node){
