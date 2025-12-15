@@ -145,6 +145,8 @@ class FloatingWindow{
 					transition: opacity ${this.fadeInDuration}s ease-in-out;
 					aria-modal: true;
 					z-index: 2147483647;
+					background: rgba(0, 0, 0, 0.9);
+					backdrop-filter: blur(10px) saturate(100%);
 				}
 				:host(.is-visible) {
 					opacity: ${this.maxOpacity};
@@ -158,7 +160,6 @@ class FloatingWindow{
 				.bindu {
 					width: 100%;
 					height: 100%;
-					background: rgba(30, 30, 30, 1);
 					padding: 2px 4px;
 					color: #ffffff;
 					border-radius: 8px;
@@ -166,7 +167,6 @@ class FloatingWindow{
 					overflow: auto;
 					border: 1px solid rgba(255, 255, 255, 0.1);
 					font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-					backdrop-filter: blur(4px);
 					scrollbar-width: 4px;
 				}
 
