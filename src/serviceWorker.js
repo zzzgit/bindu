@@ -149,6 +149,7 @@ const handleRuntimeInstalled = ()=> {
 	// eslint-disable-next-line promise/catch-or-return
 	chrome.contextMenus.removeAll().then(()=> {
 		// create 不支持 promise-based API
+		// should check whether the menu already exists
 		const ids = chrome.contextMenus.create({
 			id: BINDU_ID,
 			title: 'Bindu',
