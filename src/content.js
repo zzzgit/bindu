@@ -9,6 +9,7 @@ const detectOS = ()=> {
 	} else if (userAgent.includes('Linux')){
 		return 'os-linux'
 	}
+	return 'os-unknown'
 }
 
 const html = (strings, ...values)=> {
