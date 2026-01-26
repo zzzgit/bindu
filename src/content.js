@@ -407,6 +407,9 @@ const fetchAndPlayVoice = (word)=> {
 			}
 			const audioUrl = audioElem.getAttribute('data-file')
 			const category = audioElem.getAttribute('data-dir')
+			if (!audioUrl || !category){
+				throw new Error('[bindu][fetchAndPlayVoice]: Invalid audio data for word: ' + word)
+			}
 			let subdomain = 'media'
 			if (audioUrl.startsWith('gg')){
 				subdomain = 'media2'
