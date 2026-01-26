@@ -498,9 +498,10 @@ const switchContent = (newContent)=> {
 const fetchAndDisplayDefinition = (word, desiredLang)=> {
 	const loadingContainer = renderLoading('Loading...')
 	switchContent(loadingContainer)
-	fetchCanonData(word, { desiredLang })
+	return fetchCanonData(word, { desiredLang })
 		.then((data)=> {
-			return switchContent(renderDictionary(data))
+			switchContent(renderDictionary(data))
+			return data
 		})
 		.catch((err)=> {
 			console.error('[bindu][fetchAndDisplayDefinition]: Error fetching definition:', err)
