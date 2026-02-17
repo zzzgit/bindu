@@ -547,14 +547,15 @@ const switchContent = (newContent)=> {
 	definitionWindow.setContent(newContent)
 }
 
-const fetchAndDisplayDefinition = (word, desiredLang)=> {
+const fetchAndDisplayDefinition = async(word, desiredLang)=> {
 	const loadingContainer = renderLoading('Loading...')
 	switchContent(loadingContainer)
-	return Promise.all([fetchCanonData(word, { desiredLang }), fetchChineseDefs(word)])
-		.then(([data, chineseDefs])=> {
-			switchContent(renderDictionary(data, { chineseDefs }))
-			return data
-		})
+	const settings = await chrome.storage.sync.get(['showChineseTranslation'])
+	const chineseDefsPromise = settings.showChineseTranslation ? fetchChineseDefs(word) : Promise.resolve([])
+	return Promise.all([fetchCanonData(word, { desiredLang }), chineseDefsPromise]).then(([data, chineseDefs])=> {
+		switchContent(renderDictionary(data, { chineseDefs }))
+		return data
+	})
 		.catch((err)=> {
 			console.error('[bindu][fetchAndDisplayDefinition]: Error fetching definition:', err)
 			const msg = err || 'Could not load definition. Please try again.'
