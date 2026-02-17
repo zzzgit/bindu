@@ -1,6 +1,6 @@
 # Bindu – a practical dictionary Chrome extension
 
-**Version 1.5.3**
+**Version 1.5.4**
 
 Bindu is a lightweight, opinionated Chrome extension for looking up definitions and translations without breaking your reading flow. Built with Manifest V3 and modern ES modules.
 
@@ -8,14 +8,15 @@ Bindu is a lightweight, opinionated Chrome extension for looking up definitions 
 
 - **Context menu lookup**: Right‑click selected text → Bindu → choose a dictionary. A new tab opens with that source.
 - **Quick translation**: Click the toolbar icon to open the selection in Google Translate (defaults to zh‑TW target).
-- **Inline definition popup**: Select text, then release the mouse while holding Alt + Cmd (macOS) or Alt + Ctrl (Windows/Linux) to show a small popup near the selection.
-- **Auto-pronunciation**: The popup can auto‑play US audio via Merriam‑Webster (configurable in options).
+- **Inline definition popup**: Select text, then release the mouse while holding Alt + Cmd (macOS) or Alt + Ctrl (Windows/Linux) to show a small popup near the selection. Uses DictionaryAPI for English and FreeDictionaryAPI for non‑English (auto‑detected).
+- **Auto-pronunciation**: The popup can auto‑play US audio via Merriam‑Webster (English only, configurable in options).
 - **Click-to-play audio**: Click any phonetic "speaker" icon in the popup when available.
 - **Multiple dictionaries** out of the box:
   - Wiktionary
   - Merriam‑Webster (Webster's)
   - 漢典 (zdic.net) - Chinese dictionary
   - American Heritage Dictionary (AHD)
+  - Etymonline
   - Longman Dictionary
   - Google Translate
 
@@ -34,7 +35,7 @@ Bindu is a lightweight, opinionated Chrome extension for looking up definitions 
 npm run build
 ```
 
-This creates a `dist/bindu-1.5.3.zip` file ready for Chrome Web Store upload.
+This creates a `dist/bindu-v1.5.4.zip` file ready for Chrome Web Store upload.
 
 ## Usage
 
@@ -55,16 +56,18 @@ This creates a `dist/bindu-1.5.3.zip` file ready for Chrome Web Store upload.
 
 1. Select text on a page.
 2. Keep **Alt + Cmd** (macOS) or **Alt + Ctrl** (Windows/Linux) pressed and release the mouse button.
-3. A compact popup appears near the selection with definitions fetched from DictionaryAPI.
+3. A compact popup appears near the selection with definitions fetched from DictionaryAPI (English) or FreeDictionaryAPI (non‑English).
 4. **Popup behavior**:
    - Fades in smoothly
-   - Auto‑hides after ~10 seconds
+  - Auto‑hides after ~8 seconds
    - Hides ~2 seconds after moving your mouse away
    - Shows phonetics, part of speech, and definitions
 5. **Audio features**:
    - Auto‑plays US pronunciation from Merriam‑Webster (if enabled in options)
    - Click any phonetic "🔊" icon to play pronunciation
    - Uses offscreen document for reliable audio playback
+6. **Optional Chinese translation**:
+  - Enable **Chinese translation** in options to fetch short translations from Bing Dictionary
 
 ## Configuration
 
@@ -75,9 +78,10 @@ Bindu can be configured in two ways:
 Access via: **Chrome Extensions** → **Bindu** → **Details** → **Extension options**
 
 **Available settings** (persisted via `chrome.storage.sync`):
-- **Dictionary API**: Choose between `dictionaryapi.dev` (default) and other APIs
-- **Sound source**: US pronunciation via Merriam‑Webster (more sources available in config)
+- **Dictionary API**: `dictionaryapi.dev` (English)
+- **Sound source**: US pronunciation via Merriam‑Webster (additional sources available in config)
 - **Auto-play**: Toggle automatic pronunciation when showing inline definitions
+- **Chinese translation**: Toggle Bing Dictionary translations in the popup
 
 ### Code Configuration (`config/config.js`)
 
@@ -88,6 +92,7 @@ searchEngines: [
   { url: 'https://www.merriam-webster.com/dictionary/%s', name: 'Webster\'s' },
   { url: 'https://www.zdic.net/hans/%s', name: '漢典' },
   { url: 'https://www.ahdictionary.com/word/search.html?q=%s', name: 'AHD' },
+  { url: 'https://www.etymonline.com/word/%s', name: 'Etymonline' },
   { url: 'https://www.ldoceonline.com/dictionary/%s', name: 'Longman' },
   { url: 'https://translate.google.ca/?sl=auto&tl=zh-TW&op=translate&text=%s', name: 'gt' }
 ]
@@ -97,7 +102,7 @@ searchEngines: [
 ```javascript
 apis: {
   dictionaryapi: 'https://api.dictionaryapi.dev/api/v2/entries/en/%s',
-  // Additional APIs available for future use
+  freedictionaryapi: 'https://freedictionaryapi.com/api/v1/entries/%lang/%s'
 }
 ```
 
@@ -114,6 +119,7 @@ Each engine's `url` should include `%s` as the query placeholder.
 - **`https://www.merriam-webster.com/*`**: Fetch pronunciation audio and dictionary pages
 - **`https://media.merriam-webster.com/*`**: Access audio files for pronunciation
 - **`https://api.dictionaryapi.dev/*`**: Fetch word definitions for inline popups
+- **`https://freedictionaryapi.com/*`**: Fetch non‑English word definitions for inline popups
 
 ## Architecture
 
@@ -121,16 +127,18 @@ Each engine's `url` should include `%s` as the query placeholder.
 - Creates the "Bindu" context menu and items from `config/searchEngines`
 - Handles toolbar icon clicks → opens Google Translate for current selection
 - Manages message passing: returns active API URL, fetches Merriam‑Webster HTML for audio
+- Selects DictionaryAPI or FreeDictionaryAPI based on language detection
 - Manages offscreen document lifecycle for audio playback
 - Built with Manifest V3 service worker pattern
 
 **Content Script** (`src/content.js`):
 - Listens for **Alt + Cmd/Ctrl + mouseup** with text selection
 - Shows inline popup with smooth fade-in/out animations
-- Fetches definitions from active API (default: dictionaryapi.dev)
+- Fetches definitions from active API (default: dictionaryapi.dev; non‑English uses FreeDictionaryAPI)
 - Renders phonetics, parts of speech, and meanings
 - Handles audio: auto‑play (if enabled) and click‑to‑play for phonetic entries
 - Uses modern fetch API with error handling
+- Optional Chinese translation section (Bing Dictionary) when enabled in options
 
 **Options Page** (`src/options.{html,js}`):
 - Clean UI for API selection, sound source, and auto-play toggle
@@ -154,12 +162,14 @@ bindu/
 ├─ scripts/
 │  └─ zip.js               # Build script to produce a distributable zip
 ├─ src/
-│  ├─ background.js        # Background/service worker logic
+│  ├─ canon.tmpl           # Template for canonical data (future use)
 │  ├─ content.js           # Inline popup + selection handling
+│  ├─ offscreen.html       # Offscreen document host
+│  ├─ offscreen.js         # Offscreen audio playback
 │  ├─ options.html         # Options UI
 │  ├─ options.js           # Options logic (chrome.storage)
-│  ├─ utils.js             # Helpers (settings merge, hashing)
-│  └─ window.css           # Popup styling
+│  ├─ serviceWorker.js     # Background/service worker logic
+│  └─ utils.js             # Helpers (settings merge, hashing)
 ├─ manifest.json           # MV3 manifest
 └─ package.json            # Scripts and metadata
 ```
@@ -181,7 +191,7 @@ Load for local testing: use “Load unpacked” in chrome://extensions and selec
 
 ## Notes and limitations
 
-- Dictionary API: The inline popup uses `dictionaryapi.dev` by default and relies on CORS being available. Some words may return multiple entries.
+- Dictionary API: The inline popup uses `dictionaryapi.dev` for English and `freedictionaryapi.com` for non‑English by default. Some words may return multiple entries.
 - Audio: US audio is fetched from Merriam‑Webster’s site; host permissions are limited accordingly. UK/Longman is not yet enabled in the UI.
 - Target language for Google Translate defaults to zh‑TW; change the `gt` engine URL in `config/config.js` to use a different target.
 
