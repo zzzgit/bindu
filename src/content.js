@@ -310,6 +310,31 @@ class FloatingWindow{
 				.definition-sentence__text {
 					font-style: italic;
 				}
+
+				.translation-card {
+					display: flex;
+					flex-direction: column;
+					gap: 6px;
+				}
+
+				.translation-title {
+					font-size: 12px;
+					color: #FFCC80;
+					margin: 0;
+					letter-spacing: 0.6px;
+					text-transform: uppercase;
+				}
+
+				.translation-list {
+					margin: 0;
+					padding: 0 0 0 12px;
+					font-size: 14px;
+					line-height: 1.4;
+				}
+
+				.translation-list__item {
+					margin: 0 0 4px 0;
+				}
 			</style>
 			<div class="bindu" role="dialog"></div>
 		`
@@ -490,6 +515,33 @@ const getWebsterHtml = (word)=> {
 	})
 }
 
+const getBingHtml = (word)=> {
+	const url = `https://www.bing.com/dict/search?q=${encodeURIComponent(word)}&FORM=BDVSP6&cc=cn`
+	return fetchIt(url, { redirect: 'follow' })
+}
+
+const extractMeanings = (root)=> {
+	const ul = root?.querySelector('.hd_area')?.nextElementSibling
+	if (!ul?.matches('ul')){
+		return []
+	}
+	return [...ul.querySelectorAll('li')]
+		.map(li=> li.querySelector('.def')?.textContent?.trim())
+		.filter(text=> !!text)
+}
+
+const fetchChineseDefs = (word)=> {
+	return getBingHtml(word).then((html)=> {
+		const parser = new DOMParser()
+		const doc = parser.parseFromString(html, 'text/html')
+		const defs = extractMeanings(doc.querySelector('.qdef'))
+		return defs
+	}).catch((err)=> {
+		console.error('[bindu][fetchChineseDefs]: Error fetching Chinese definitions:', err)
+		return []
+	})
+}
+
 const switchContent = (newContent)=> {
 	if (!definitionWindow){ return }
 	definitionWindow.setContent(newContent)
@@ -498,9 +550,9 @@ const switchContent = (newContent)=> {
 const fetchAndDisplayDefinition = (word, desiredLang)=> {
 	const loadingContainer = renderLoading('Loading...')
 	switchContent(loadingContainer)
-	return fetchCanonData(word, { desiredLang })
-		.then((data)=> {
-			switchContent(renderDictionary(data))
+	return Promise.all([fetchCanonData(word, { desiredLang }), fetchChineseDefs(word)])
+		.then(([data, chineseDefs])=> {
+			switchContent(renderDictionary(data, { chineseDefs }))
 			return data
 		})
 		.catch((err)=> {
@@ -600,6 +652,18 @@ const definition_tmpl = (props)=> {
 	return str.trim()
 }
 
+const chineseDefs_tmpl = (defs)=> {
+	const str = html`
+<article class="translation-card">
+	<p class="translation-title">Chinese</p>
+	<ul class="translation-list">
+		${defs.map(def=> `<li class="translation-list__item">${escapeHtml(def)}</li>`)}
+	</ul>
+</article>
+	`
+	return str.trim()
+}
+
 const lang_tmpl = (lang)=> {
 	const str = html`
 <p class="etymology-language">
@@ -689,13 +753,18 @@ const renderMeaningsSection = (meanings)=> {
 	return fragment
 }
 
-const renderDictionary = (canonData)=> {
+const renderDictionary = (canonData, options = {})=> {
 	if (!canonData || !Array.isArray(canonData.etymologyEntries)){
 		throw new Error('No definition found.')
 	}
+	const chineseDefs = Array.isArray(options.chineseDefs) ? options.chineseDefs : []
 
 	const container = document.createElement('div')
 	container.classList.add('definition-container')
+
+	if (chineseDefs.length){
+		container.appendChild(getEle(chineseDefs_tmpl(chineseDefs)))
+	}
 
 	canonData.etymologyEntries.forEach((etymologyEntry)=> {
 		const etymoCard = document.createElement('article')
